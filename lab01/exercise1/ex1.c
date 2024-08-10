@@ -42,4 +42,5 @@ void compute_nucleotide_occurrences(DNA_sequence *dna_seq) {
     dna_seq->G_count = num_occurrences(dna_seq->sequence, 'G');
     dna_seq->T_count = num_occurrences(dna_seq->sequence, 'T');
     return;
+    
 }
