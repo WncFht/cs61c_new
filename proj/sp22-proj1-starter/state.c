@@ -287,5 +287,27 @@ static void find_head(game_state_t* state, int snum) {
 /* Task 6.2 */
 game_state_t* initialize_snakes(game_state_t* state) {
   // TODO: Implement this function.
-  return NULL;
+  int snum = 0;
+  for (int y = 0; y < state->y_size; y++) {
+    for (int x = 0; x < state->x_size; x++) {
+      if (is_tail(get_board_at(state, x, y))) {
+        snum++;
+      }
+    }
+  }
+  state->num_snakes = snum;
+  state->snakes = calloc(sizeof(snake_t), snum);
+  int i = 0;
+  for (int y = 0; y < state->y_size; y++) {
+    for (int x = 0; x < state->x_size; x++) {
+      if (is_tail(get_board_at(state, x, y))) {
+        state->snakes[i].tail_x = x;
+        state->snakes[i].tail_y = y;
+        state->snakes[i].live = true;
+        find_head(state, i);
+        i++;
+      }
+    }
+  }
+  return state;
 }
