@@ -83,6 +83,9 @@ void free_state(game_state_t* state) {
 /* Task 3 */
 void print_board(game_state_t* state, FILE* fp) {
   // TODO: Implement this function.
+  for (int y = 0; y < state->y_size; y += 1) {
+    fprintf(fp, "%s\n", state->board[y]);
+  }
   return;
 }
 
@@ -96,56 +99,167 @@ void save_board(game_state_t* state, char* filename) {
 /* Task 4.1 */
 static bool is_tail(char c) {
   // TODO: Implement this function.
-  return true;
+  return c == 'w' || c == 'a' || c == 's' || c == 'd';
 }
 
 static bool is_snake(char c) {
   // TODO: Implement this function.
-  return true;
+  return is_tail(c) || c == '^' || c == '<' || c == '>' || c == 'v' || c == 'x';
 }
 
 static char body_to_tail(char c) {
   // TODO: Implement this function.
-  return '?';
+  switch (c)
+  {
+  case '^':
+    return 'w';
+    break;
+  case '<':
+    return 'a';
+    break;
+  case '>':
+    return 'd';
+    break;
+  case 'v':
+    return 's';
+    break; 
+  default:
+    return ' ';
+    break;
+  }
 }
 
 static int incr_x(char c) {
   // TODO: Implement this function.
-  return 0;
+  if (c == '>' || c == 'd') {
+    return 1;
+  } else if (c == '<' || c == 'a') {
+    return -1;
+  } else {
+    return 0;
+  }
 }
 
 static int incr_y(char c) {
   // TODO: Implement this function.
-  return 0;
+   if (c == 'v' || c == 's') {
+    return 1;
+  } else if (c == '^' || c == 'w') {
+    return -1;
+  } else {
+    return 0;
+  }
 }
 
 /* Task 4.2 */
 static char next_square(game_state_t* state, int snum) {
   // TODO: Implement this function.
-  return '?';
+  snake_t* snake = &state->snakes[snum];
+  int x = snake->head_x;
+  int y = snake->head_y;
+  char c = get_board_at(state, x, y);
+  x += incr_x(c);
+  y += incr_y(c);
+  return get_board_at(state, x, y);
 }
 
 /* Task 4.3 */
 static void update_head(game_state_t* state, int snum) {
   // TODO: Implement this function.
+  char next = next_square(state, snum);
+  if (next == '*' || next == '#' || is_snake(next)) {
+    return;
+  }
+  snake_t *snake = &state->snakes[snum];
+  int x = snake->head_x;
+  int y = snake->head_y;
+  char c = get_board_at(state, x, y);
+  x += incr_x(c);
+  y += incr_y(c);
+  snake->head_x = x;
+  snake->head_y = y;
+  set_board_at(state, x, y, c);
   return;
 }
 
 /* Task 4.4 */
 static void update_tail(game_state_t* state, int snum) {
   // TODO: Implement this function.
+  snake_t *snake = &state->snakes[snum];
+  int x = snake->tail_x;
+  int y = snake->tail_y;
+  char c = get_board_at(state, x, y);
+  set_board_at(state, x, y, ' ');
+  x += incr_x(c);
+  y += incr_y(c);
+  snake->tail_x = x;
+  snake->tail_y = y;
+  set_board_at(state, x, y, body_to_tail(get_board_at(state, x, y)));
   return;
 }
 
 /* Task 4.5 */
 void update_state(game_state_t* state, int (*add_food)(game_state_t* state)) {
   // TODO: Implement this function.
+  int snum = state->num_snakes;
+  for (int i = 0; i < snum; i += 1) {
+    char c = next_square(state, i);
+    snake_t *snake = &state->snakes[i];
+    if (c == '#' || is_snake(c)) {
+      set_board_at(state, snake->head_x, snake->head_y, 'x');
+      snake->live = false;
+      continue;
+    }
+    if (c == '*') {
+      snake_t * snake = &state->snakes[i];
+      int x = snake->head_x;
+      int y = snake->head_y;
+      char c = get_board_at(state, x, y);
+      set_board_at(state, x + incr_x(c), y + incr_y(c), ' ');
+      update_head(state, i);
+      add_food(state);
+      continue;
+    }
+    update_head(state, i);
+    update_tail(state, i);
+  }
   return;
 }
 
 /* Task 5 */
 game_state_t* load_board(char* filename) {
   // TODO: Implement this function.
+  game_state_t *game_state = calloc(sizeof(game_state_t), 1);
+  FILE *f = fopen(filename, "r");
+  int row = 0;
+  int col = 0;
+  int flag = 0;
+  while (!feof(f)) {
+    flag = fgetc(f);
+    col += 1;
+    if (flag == '\n') {
+      row += 1;
+      break;
+    }
+  }
+  while (!feof(f)) {
+    flag = fgetc(f);
+    if (flag == '\n') {
+      row += 1;
+    }
+  }
+  game_state->board = calloc(sizeof(char*), row);
+  game_state->x_size = col -1;
+  game_state->y_size = row;
+  rewind(f);
+  for (int i = 0; i < row; i += 1) {
+    game_state->board[i] = calloc(sizeof(char), col);
+    fgets(game_state->board[i], col, f);
+    fgetc(f);
+  }
+  return game_state;
+  
+  
   return NULL;
 }
 
