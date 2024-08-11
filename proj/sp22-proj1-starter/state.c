@@ -258,8 +258,6 @@ game_state_t* load_board(char* filename) {
     fgetc(f);
   }
   return game_state;
-  
-  
   return NULL;
 }
 
