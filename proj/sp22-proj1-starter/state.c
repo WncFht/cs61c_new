@@ -264,6 +264,23 @@ game_state_t* load_board(char* filename) {
 /* Task 6.1 */
 static void find_head(game_state_t* state, int snum) {
   // TODO: Implement this function.
+  snake_t *snake = &state->snakes[snum];
+  int x = snake->tail_x;
+  int y = snake->tail_y;
+  int next_x = 0, next_y = 0;
+  char c = 0;
+  while (true) {
+    c = get_board_at(state, x, y);
+    next_x = x + incr_x(c);
+    next_y = y + incr_y(c);
+    if (!is_snake(get_board_at(state, next_x, next_y))) {
+      break;
+    }
+    x = next_x;
+    y = next_y;
+  }
+  snake->head_x = x;
+  snake->head_y = y;
   return;
 }
 
