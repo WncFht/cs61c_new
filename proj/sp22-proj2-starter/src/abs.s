@@ -10,9 +10,9 @@
 # =================================================================
 abs:
 	# Prologue
-
-	# PASTE HERE
-
+	bge a0, zero, done # if a0 >= zero the done
+	sub a0, x0, a0
 	# Epilogue
 
+done:
 	ret
