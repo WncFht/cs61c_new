@@ -47,7 +47,7 @@ class TestAbsLoss(TestCase):
         # set a2 to the length of the array
         t.input_scalar('a2', len(arr0))
         # create a result array in the data section (fill values with -1)
-        output_array = t.array([1] * len(arr0))
+        output_array = t.array([-1] * len(arr0))
         # load address of `array2` into register a3
         t.input_array('a3', output_array)
         # call the `abs_loss` function
@@ -103,9 +103,8 @@ class TestSquaredLoss(TestCase):
     def test_simple(self):
         # load the test for squared_loss.s
         t = AssemblyTest(self, "../coverage-src/squared_loss.s")
-
         # create input arrays in the data section
-        input_array1 = t.array([1, 2, 3, -1])
+        input_array1 = t.array([1, 2, 4, -1])
         input_array2 = t.array([0, 1, -1, 3])
         # load array addresses into argument registers
         t.input_array('a0', input_array1)
@@ -119,9 +118,9 @@ class TestSquaredLoss(TestCase):
         # call the `squared_loss` function
         t.call('squared_loss')
         # check that the result array contains the correct output
-        t.check_array(output_array, [1, 1, 16, 16])
+        t.check_array(output_array, [1, 1, 25, 16])
         # check that the register a0 contains the correct output
-        t.check_scalar('a0', 34)
+        t.check_scalar('a0', 43)
         # generate the `assembly/TestSquaredLoss_test_simple.s` file and run it through venus
         t.execute()
 
