@@ -79,7 +79,7 @@ mapLoop:
     sw t2, 4(sp)
     sw t0, 8(sp)
 
-    jalr s1             # call the function on that value.
+    jalr s1             # call the function on that value. test
 
     lw t0, 8(sp)
     lw t2, 4(sp)
